@@ -26,4 +26,15 @@ class ArticleFactory extends Factory
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
         ];
     }
+
+    public function apiIndex()
+    {
+        $articles = Article::published()->latest()->paginate(10);
+        
+        return response()->json([
+            'data' => $articles,
+            'message' => 'API работает с Sanctum токеном',
+            'requires' => 'Bearer token in Authorization header'
+        ]);
+    }
 }

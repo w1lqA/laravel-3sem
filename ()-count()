@@ -1,0 +1,28 @@
+[90m= [39m[34;4mApp\Models\Article[39;24m {#5375
+    [34mid[39m: [35m1[39m,
+    [34mtitle[39m: "[32mUllam maiores qui dolor aut.[39m",
+    [34mslug[39m: "[32mullam-maiores-qui-dolor-aut-3822[39m",
+    [34mcontent[39m: """
+      [32mQuam reprehenderit sed eaque omnis ducimus magnam. Similique ut enim est quidem.[39m\n
+      \n
+      [32mIllo facere qui pariatur id. Libero sequi quisquam sequi quas ex. Omnis consequatur numquam earum nisi esse in in. Architecto in omnis aut consequatur.[39m\n
+      \n
+      [32mEligendi ea cupiditate et quia nihil dolor non. Illum numquam ipsa assumenda perferendis dolorem veniam. Fugit repudiandae vero eos autem cumque.[39m\n
+      \n
+      [32mVoluptatem dolore est temporibus facere et iure voluptas. Qui deleniti numquam magni eveniet consequatur. Sit iste tempora excepturi hic dolores.[39m\n
+      \n
+      [32mEa eligendi rerum eius modi dolores rem tempore. Corrupti quaerat dolorum voluptatem deleniti et nostrum quia. Iure illo quaerat consequatur voluptatem consequatur quia quia. Esse veniam alias est dolore soluta non qui voluptates. Tempora quis quasi rerum praesentium hic qui sed.[39m\n
+      \n
+      [32mVoluptatem ullam temporibus sit molestiae nesciunt enim. Quas eum nesciunt pariatur officia voluptatum et. Aut voluptatem voluptas qui voluptatem tempore.[39m\n
+      \n
+      [32mRerum sint eos ad aliquid. Aut ut quo dolore quae maxime. Perspiciatis aperiam assumenda reiciendis rem dolor. Enim ut dolores culpa id fugiat. Beatae ea soluta incidunt aspernatur deleniti facilis.[39m
+      """,
+    [34mpreview_image[39m: "[32mpreview_3.jpg[39m",
+    [34mfull_image[39m: "[32mfull_2.jpeg[39m",
+    [34mshort_desc[39m: "[32mEt est possimus mollitia et ut harum voluptatem.[39m",
+    [34mis_published[39m: [35m1[39m,
+    [34mviews_count[39m: [35m93[39m,
+    [34mcreated_at[39m: "[32m2025-07-22 08:04:19[39m",
+    [34mupdated_at[39m: "[32m2025-12-16 19:37:02[39m",
+  }
+

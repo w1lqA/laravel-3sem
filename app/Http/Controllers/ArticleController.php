@@ -30,12 +30,13 @@ class ArticleController extends Controller
 
     public function create()
     {
-        // Показываем форму только авторизованным пользователям
+        $this->authorize('create', Article::class);
         return view('articles.create');
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Article::class);
         $validated = $request->validate([
             'title' => 'required|string|min:5|max:200',
             'content' => 'required|string|min:20',
@@ -95,11 +96,13 @@ class ArticleController extends Controller
 
     public function edit(Article $article)
     {
+        $this->authorize('update', $article);
         return view('articles.edit', compact('article'));
     }
 
     public function update(Request $request, Article $article)
     {
+        $this->authorize('update', $article);
         $validated = $request->validate([
             'title' => 'required|string|min:5|max:200',
             'content' => 'required|string|min:20',
@@ -144,7 +147,8 @@ class ArticleController extends Controller
 
     public function destroy(Article $article)
     {
-        // Удаляем изображения
+        $this->authorize('delete', $article);
+
         if ($article->preview_image && Storage::disk('public')->exists($article->preview_image)) {
             Storage::disk('public')->delete($article->preview_image);
         }

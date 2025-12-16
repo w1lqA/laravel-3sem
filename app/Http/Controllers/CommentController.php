@@ -22,12 +22,14 @@ class CommentController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Comment::class);
         $articles = Article::published()->get();
         return view('comments.create', compact('articles'));
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Comment::class);
         $validated = $request->validate([
             'article_id' => 'required|exists:articles,id',
             'content' => 'required|string|min:5|max:1000'
@@ -56,17 +58,13 @@ class CommentController extends Controller
 
     public function edit(Comment $comment)
     {
-        // Проверяем что пользователь может редактировать
-        if (Auth::id() !== $comment->user_id) {
-            abort(403, 'У вас нет прав на редактирование этого комментария');
-        }
-        
+        $this->authorize('update', $comment);
         return view('comments.edit', compact('comment'));
     }
 
     public function update(Request $request, Comment $comment)
     {
-        // Проверяем права
+        $this->authorize('update', $comment);
         if (Auth::id() !== $comment->user_id) {
             abort(403, 'У вас нет прав на редактирование этого комментария');
         }
@@ -87,7 +85,8 @@ class CommentController extends Controller
 
     public function destroy(Comment $comment)
     {
-        // Проверяем права
+        $this->authorize('delete', $comment);
+
         if (Auth::id() !== $comment->user_id) {
             abort(403, 'У вас нет прав на удаление этого комментария');
         }
@@ -103,6 +102,7 @@ class CommentController extends Controller
     // Дополнительные методы для модерации
     public function approve(Comment $comment)
     {
+        $this->authorize('approve', Comment::class);
         $comment->update(['is_approved' => true]);
         
         return back()->with('success', 'Комментарий одобрен!');
@@ -110,6 +110,7 @@ class CommentController extends Controller
     
     public function reject(Comment $comment)
     {
+        $this->authorize('reject', Comment::class);
         $comment->delete();
         
         return back()->with('success', 'Комментарий отклонен и удален!');

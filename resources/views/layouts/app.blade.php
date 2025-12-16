@@ -75,6 +75,74 @@
                         Комментарии
                     </a>
                     @endauth
+
+                    @can('manage-articles')
+                    <a href="{{ route('articles.create') }}" 
+                    class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
+                    @if(request()->is('articles/create')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
+                        Создать статью
+                    </a>
+                    @endcan
+
+
+                    @auth
+                        <div class="relative group">
+                            <button class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors flex items-center gap-1">
+                                {{ Auth::user()->name }}
+                                @if(Auth::user()->isModerator())
+                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Модератор</span>
+                                @else
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Читатель</span>
+                                @endif
+                                <span>▼</span>
+                            </button>
+                            
+                            <div class="absolute right-0 mt-2 w-48 bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-medium)] rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                                <div class="p-3 border-b border-[var(--border-color)]">
+                                    <p class="font-medium">{{ Auth::user()->email }}</p>
+                                    <p class="text-sm text-[var(--text-light)]">
+                                        {{ Auth::user()->isModerator() ? 'Модератор' : 'Читатель' }}
+                                    </p>
+                                </div>
+                                
+                                <div class="p-2">
+                                    @can('manage-articles')
+                                    <a href="{{ route('articles.index') }}" 
+                                    class="block px-3 py-2 text-[var(--text-dark)] hover:bg-[#fff5f9] hover:text-[var(--primary-pink)] transition-colors">
+                                        Управление статьями
+                                    </a>
+                                    @endcan
+                                    
+                                    @can('manage-comments')
+                                    <a href="{{ route('comments.index') }}" 
+                                    class="block px-3 py-2 text-[var(--text-dark)] hover:bg-[#fff5f9] hover:text-[var(--primary-pink)] transition-colors">
+                                        Модерация комментариев
+                                    </a>
+                                    @endcan
+                                    
+                                    <form action="{{ route('auth.logout') }}" method="POST" class="mt-2">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+                                            Выйти из системы
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('auth.login') }}" 
+                        class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
+                        @if(request()->is('login')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
+                            Вход
+                        </a>
+                        <a href="{{ route('auth.register') }}" 
+                        class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
+                        @if(request()->is('register')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
+                            Регистрация
+                        </a>
+                    @endauth
+
                 </div>
             </div>
         </nav>
