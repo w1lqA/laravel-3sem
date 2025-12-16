@@ -2,16 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\AuthController;
 
-// Заменяем старый роут на главной на вызов контроллера
+// Главная страница
 Route::get('/', [MainController::class, 'index'])->name('home');
 
-// О нас (оставляем как есть)
+// О нас
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-// Контакты (оставляем как есть)
+// Контакты
 Route::get('/contacts', function () {
     $contacts = [
         'email' => 'contact@laravelblog.test',
@@ -25,5 +26,12 @@ Route::get('/contacts', function () {
     return view('contacts', ['contacts' => $contacts]);
 })->name('contacts');
 
-// Новый роут для галереи
+// Галерея
 Route::get('/gallery/{imageName}', [MainController::class, 'gallery'])->name('gallery');
+
+// ========== ЛР №3: Регистрация ==========
+// Показ формы регистрации (GET)
+Route::get('/signin', [AuthController::class, 'create'])->name('auth.signin');
+
+// Обработка формы регистрации (POST)
+Route::post('/signin', [AuthController::class, 'registration'])->name('auth.register');
