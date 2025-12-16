@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ArticleController;  
 
 // Главная страница
 Route::get('/', [MainController::class, 'index'])->name('home');
@@ -35,3 +36,6 @@ Route::get('/signin', [AuthController::class, 'create'])->name('auth.signin');
 
 // Обработка формы регистрации (POST)
 Route::post('/signin', [AuthController::class, 'registration'])->name('auth.register');
+
+// Маршруты для статей (ЛР №4)
+Route::resource('articles', ArticleController::class)->only(['index', 'show']);

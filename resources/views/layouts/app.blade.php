@@ -63,6 +63,11 @@
                         @if(request()->is('signin')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
                         Регистрация
                     </a>
+                    <a href="{{ route('articles.index') }}" 
+                    class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
+                    @if(request()->is('articles*')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
+                        Статьи
+                    </a>
                 </div>
             </div>
         </nav>
