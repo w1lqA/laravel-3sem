@@ -101,18 +101,7 @@
             <pre class="bg-gray-50 border border-gray-200 p-4 rounded text-sm overflow-auto max-h-64"></pre>
         </div>
     </div>
-    
-    <!-- Информация для отладки -->
-    <div class="bg-gray-50 border border-gray-200 p-6 text-sm text-gray-600">
-        <h3 class="font-bold mb-2">Информация о лабораторной работе №3:</h3>
-        <ul class="list-disc pl-4 space-y-1">
-            <li>Форма отправляется методом POST на <code>/signin</code></li>
-            <li>Добавлен CSRF-токен для защиты</li>
-            <li>Валидация происходит на стороне сервера</li>
-            <li>Ответ возвращается в формате JSON</li>
-            <li>Данные НЕ сохраняются в БД (только для демонстрации валидации)</li>
-        </ul>
-    </div>
+
 </div>
 
 <!-- JavaScript для обработки формы AJAX -->

@@ -96,20 +96,20 @@
         </div>
         @endif
     @endif
-    
-    <div class="mt-8 bg-gray-50 border border-gray-200 p-6">
-        <h3 class="font-bold mb-3 text-[var(--text-dark)]">Лабораторная работа №4 выполнена:</h3>
-        <ul class="list-disc pl-5 space-y-2 text-sm text-[var(--text-light)]">
-            <li>✅ Создана модель <code>Article</code></li>
-            <li>✅ Создана миграция для таблицы <code>articles</code></li>
-            <li>✅ Создана фабрика для наполнения фейковыми данными</li>
-            <li>✅ Настроен DatabaseSeeder</li>
-            <li>✅ Создан контроллер <code>ArticleController</code></li>
-            <li>✅ Реализовано представление для списка статей</li>
-            <li>✅ Данные заполнены через <code>php artisan db:seed</code></li>
-        </ul>
+</div>
+
+@auth
+<div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
+    <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьями:</h3>
+    <div class="flex gap-4">
+        <a href="{{ route('articles.create') }}" 
+           class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
+            📝 Создать новую статью
+        </a>
     </div>
 </div>
+@endauth
+
 @endsection
 
 @push('styles')

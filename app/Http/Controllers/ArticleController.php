@@ -4,71 +4,158 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // УБИРАЕМ конструктор! Middleware будем настраивать в роутах
+    
     public function index()
     {
-        $articles = Article::published()->latest()->paginate(6);
-        return view('articles.index', compact('articles'));
+        $filter = request('filter', 'all');
+        
+        $articles = Article::query();
+        
+        if ($filter === 'popular') {
+            $articles->popular();
+        } else {
+            $articles->latest();
+        }
+        
+        $articles = $articles->paginate(6);
+        
+        return view('articles.index', compact('articles', 'filter'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        // Пока не нужно для ЛР №4
-        return redirect()->route('articles.index');
+        // Показываем форму только авторизованным пользователям
+        return view('articles.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // Пока не нужно для ЛР №4
-        return redirect()->route('articles.index');
+        $validated = $request->validate([
+            'title' => 'required|string|min:5|max:200',
+            'content' => 'required|string|min:20',
+            'short_desc' => 'nullable|string|max:300',
+            'preview_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'full_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'is_published' => 'boolean'
+        ], [
+            'title.required' => 'Заголовок обязателен',
+            'title.min' => 'Заголовок должен быть минимум 5 символов',
+            'content.required' => 'Содержание статьи обязательно',
+            'content.min' => 'Содержание должно быть минимум 20 символов',
+            'preview_image.image' => 'Файл должен быть изображением',
+            'preview_image.max' => 'Размер изображения не должен превышать 2MB',
+            'full_image.max' => 'Размер изображения не должен превышать 5MB'
+        ]);
+        
+        // Создаем slug из заголовка
+        $slug = Str::slug($validated['title']) . '-' . rand(1000, 9999);
+        
+        // Обработка изображений
+        $previewImagePath = null;
+        $fullImagePath = null;
+        
+        if ($request->hasFile('preview_image')) {
+            $previewImagePath = $request->file('preview_image')->store('articles', 'public');
+        }
+        
+        if ($request->hasFile('full_image')) {
+            $fullImagePath = $request->file('full_image')->store('articles', 'public');
+        }
+        
+        $article = Article::create([
+            'title' => $validated['title'],
+            'slug' => $slug,
+            'content' => $validated['content'],
+            'short_desc' => $validated['short_desc'] ?? null,
+            'preview_image' => $previewImagePath,
+            'full_image' => $fullImagePath,
+            'is_published' => $validated['is_published'] ?? true
+        ]);
+        
+        return redirect()
+            ->route('articles.show', $article->slug)
+            ->with('success', 'Статья успешно создана!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Article $article)
     {
-        // Увеличиваем счетчик просмотров
-        $article->increment('views_count');
+        // Увеличиваем счетчик просмотров только для опубликованных статей
+        if ($article->is_published) {
+            $article->increment('views_count');
+        }
         
         return view('articles.show', compact('article'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Article $article)
     {
-        // Пока не нужно для ЛР №4
-        return redirect()->route('articles.index');
+        return view('articles.edit', compact('article'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Article $article)
     {
-        // Пока не нужно для ЛР №4
-        return redirect()->route('articles.index');
+        $validated = $request->validate([
+            'title' => 'required|string|min:5|max:200',
+            'content' => 'required|string|min:20',
+            'short_desc' => 'nullable|string|max:300',
+            'preview_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'full_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'is_published' => 'boolean'
+        ]);
+        
+        // Обновляем slug если изменился заголовок
+        if ($article->title !== $validated['title']) {
+            $validated['slug'] = Str::slug($validated['title']) . '-' . rand(1000, 9999);
+        }
+        
+        // Обработка изображений
+        if ($request->hasFile('preview_image')) {
+            // Удаляем старое изображение если было
+            if ($article->preview_image && Storage::disk('public')->exists($article->preview_image)) {
+                Storage::disk('public')->delete($article->preview_image);
+            }
+            $validated['preview_image'] = $request->file('preview_image')->store('articles', 'public');
+        } else {
+            // Сохраняем старое значение
+            $validated['preview_image'] = $article->preview_image;
+        }
+        
+        if ($request->hasFile('full_image')) {
+            if ($article->full_image && Storage::disk('public')->exists($article->full_image)) {
+                Storage::disk('public')->delete($article->full_image);
+            }
+            $validated['full_image'] = $request->file('full_image')->store('articles', 'public');
+        } else {
+            $validated['full_image'] = $article->full_image;
+        }
+        
+        $article->update($validated);
+        
+        return redirect()
+            ->route('articles.show', $article->slug)
+            ->with('success', 'Статья успешно обновлена!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Article $article)
     {
-        // Пока не нужно для ЛР №4
-        return redirect()->route('articles.index');
+        // Удаляем изображения
+        if ($article->preview_image && Storage::disk('public')->exists($article->preview_image)) {
+            Storage::disk('public')->delete($article->preview_image);
+        }
+        if ($article->full_image && Storage::disk('public')->exists($article->full_image)) {
+            Storage::disk('public')->delete($article->full_image);
+        }
+        
+        $article->delete();
+        
+        return redirect()
+            ->route('articles.index')
+            ->with('success', 'Статья успешно удалена!');
     }
 }

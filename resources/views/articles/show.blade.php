@@ -113,4 +113,112 @@
         </a>
     </div>
 </div>
+@auth
+<div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
+    <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
+    <div class="flex gap-4">
+        <a href="{{ route('articles.edit', $article->slug) }}" 
+           class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
+            ✏️ Редактировать
+        </a>
+        <form action="{{ route('articles.destroy', $article->slug) }}" method="POST" 
+              onsubmit="return confirm('Вы уверены?')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" 
+                    class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-[var(--shadow-light)]">
+                🗑️ Удалить
+            </button>
+        </form>
+    </div>
+</div>
+@endauth
+
+<!-- Комментарии -->
+<div class="mt-8 bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-medium)] p-8">
+    <h2 class="text-2xl font-bold mb-6 text-[var(--text-dark)]">Комментарии ({{ $article->approvedComments()->count() }})</h2>
+    
+    <!-- Список комментариев -->
+    @if($article->approvedComments()->count() > 0)
+        <div class="space-y-6 mb-8">
+            @foreach($article->approvedComments()->get() as $comment)
+            <div class="border border-[var(--border-color)] p-4 rounded">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-[var(--primary-pink)] text-white rounded-full flex items-center justify-center font-bold">
+                            {{ Str::upper(substr($comment->user?->name ?: 'Аноним', 0, 1)) }}
+                        </div>
+                        <div>
+                            <div class="font-medium text-[var(--text-dark)]">
+                                {{ $comment->user?->name ?: 'Анонимный пользователь' }}
+                            </div>
+                            <div class="text-sm text-[var(--text-light)]">
+                                {{ $comment->created_at->format('d.m.Y H:i') }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @auth
+                        @if(auth()->id() == $comment->user_id)
+                        <div class="flex gap-2">
+                            <a href="{{ route('comments.edit', $comment) }}" 
+                               class="text-sm text-blue-600 hover:text-blue-800">Изменить</a>
+                            <form action="{{ route('comments.destroy', $comment) }}" method="POST" 
+                                  onsubmit="return confirm('Удалить комментарий?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-sm text-red-600 hover:text-red-800">Удалить</button>
+                            </form>
+                        </div>
+                        @endif
+                    @endauth
+                </div>
+                
+                <p class="text-[var(--text-dark)]">{{ $comment->content }}</p>
+            </div>
+            @endforeach
+        </div>
+    @else
+        <div class="text-center py-8 border-2 border-dashed border-[var(--border-color)] rounded mb-8">
+            <p class="text-[var(--text-light)]">Пока нет комментариев. Будьте первым!</p>
+        </div>
+    @endif
+    
+    <!-- Форма добавления комментария -->
+    @auth
+        <div class="border-t-2 border-[var(--border-color)] pt-8">
+            <h3 class="text-xl font-bold mb-4 text-[var(--text-dark)]">Добавить комментарий</h3>
+            
+            <form action="{{ route('comments.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="article_id" value="{{ $article->id }}">
+                
+                <div class="mb-4">
+                    <textarea name="content" 
+                              rows="4"
+                              class="w-full border-2 border-[var(--border-color)] px-4 py-3 focus:border-[var(--primary-pink)] focus:outline-none focus:shadow-[var(--shadow-light)] transition-all"
+                              placeholder="Ваш комментарий..."
+                              required></textarea>
+                    @error('content')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <button type="submit" 
+                        class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
+                    Отправить комментарий
+                </button>
+            </form>
+        </div>
+    @else
+        <div class="text-center py-6 border-2 border-[var(--border-color)] rounded bg-gray-50">
+            <p class="text-[var(--text-dark)] mb-3">Чтобы оставить комментарий, необходимо авторизоваться</p>
+            <a href="{{ route('auth.signin') }}" 
+               class="px-6 py-2 bg-[var(--primary-pink)] text-white font-medium hover:bg-[var(--primary-pink-dark)] transition-colors">
+                Войти / Зарегистрироваться
+            </a>
+        </div>
+    @endauth
+</div>
+
 @endsection

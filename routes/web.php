@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ArticleController;  
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CommentController;
 
 // Главная страница
 Route::get('/', [MainController::class, 'index'])->name('home');
@@ -30,12 +31,42 @@ Route::get('/contacts', function () {
 // Галерея
 Route::get('/gallery/{imageName}', [MainController::class, 'gallery'])->name('gallery');
 
-// ========== ЛР №3: Регистрация ==========
-// Показ формы регистрации (GET)
+// ЛР №3: Регистрация
 Route::get('/signin', [AuthController::class, 'create'])->name('auth.signin');
-
-// Обработка формы регистрации (POST)
 Route::post('/signin', [AuthController::class, 'registration'])->name('auth.register');
 
-// Маршруты для статей (ЛР №4)
-Route::resource('articles', ArticleController::class)->only(['index', 'show']);
+// ========== ЛР №5: CRUD для статей ==========
+// Публичные роуты (без аутентификации)
+Route::controller(ArticleController::class)->group(function () {
+    Route::get('/articles', 'index')->name('articles.index');
+    Route::get('/articles/{article:slug}', 'show')->name('articles.show');
+});
+
+// Защищенные роуты (только для авторизованных)
+Route::middleware('auth')->controller(ArticleController::class)->group(function () {
+    Route::get('/articles/create', 'create')->name('articles.create');
+    Route::post('/articles', 'store')->name('articles.store');
+    Route::get('/articles/{article:slug}/edit', 'edit')->name('articles.edit');
+    Route::put('/articles/{article:slug}', 'update')->name('articles.update');
+    Route::delete('/articles/{article:slug}', 'destroy')->name('articles.destroy');
+});
+
+// ========== ДЗ №3: CRUD для комментариев ==========
+// Публичные роуты
+Route::controller(CommentController::class)->group(function () {
+    Route::get('/comments', 'index')->name('comments.index');
+    Route::get('/comments/{comment}', 'show')->name('comments.show');
+});
+
+// Защищенные роуты
+Route::middleware('auth')->controller(CommentController::class)->group(function () {
+    Route::get('/comments/create', 'create')->name('comments.create');
+    Route::post('/comments', 'store')->name('comments.store');
+    Route::get('/comments/{comment}/edit', 'edit')->name('comments.edit');
+    Route::put('/comments/{comment}', 'update')->name('comments.update');
+    Route::delete('/comments/{comment}', 'destroy')->name('comments.destroy');
+    
+    // Модерация
+    Route::post('/comments/{comment}/approve', 'approve')->name('comments.approve');
+    Route::post('/comments/{comment}/reject', 'reject')->name('comments.reject');
+});
