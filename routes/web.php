@@ -1,18 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MainController;
 
-// Главная страница
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// Заменяем старый роут на главной на вызов контроллера
+Route::get('/', [MainController::class, 'index'])->name('home');
 
-// О нас
+// О нас (оставляем как есть)
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-// Контакты с динамическими данными
+// Контакты (оставляем как есть)
 Route::get('/contacts', function () {
     $contacts = [
         'email' => 'contact@laravelblog.test',
@@ -25,3 +24,6 @@ Route::get('/contacts', function () {
     
     return view('contacts', ['contacts' => $contacts]);
 })->name('contacts');
+
+// Новый роут для галереи
+Route::get('/gallery/{imageName}', [MainController::class, 'gallery'])->name('gallery');

@@ -23,19 +23,73 @@
         </div>
     </div>
 
-    <!-- Карточки предстоящих разделов -->
-    <div class="grid md:grid-cols-2 gap-6 mb-12">
-        <div class="bg-white border-2 border-(--border-color) p-6 shadow-[var(--shadow-light)] hover:shadow-[var(--shadow-medium)] transition-shadow">
-            <div class="text-[var(--primary-pink)] text-2xl mb-3 font-bold">→</div>
-            <h3 class="text-xl font-bold mb-2">Новости</h3>
-            <p class="text-[var(--text-light)] mb-4">В будущем здесь будет выводиться список новостей с пагинацией и комментариями.</p>
-        </div>
+    <!-- Статьи из JSON -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 text-[var(--text-dark)] border-b-2 border-[var(--border-color)] pb-3">
+            Последние статьи
+        </h2>
         
-        <div class="bg-white border-2 border-[var(--border-color)] p-6 shadow-[var(--shadow-light)] hover:shadow-[var(--shadow-medium)] transition-shadow">
-            <div class="text-[var(--primary-pink)] text-2xl mb-3 font-bold">→</div>
-            <h3 class="text-xl font-bold mb-2">Статьи</h3>
-            <p class="text-[var(--text-light)] mb-4">Раздел для обучающих материалов по Laravel и веб-разработке.</p>
-        </div>
+        @if(empty($articles))
+            <div class="bg-white border-2 border-[var(--border-color)] p-8 text-center">
+                <p class="text-[var(--text-light)]">Статьи не найдены</p>
+            </div>
+        @else
+            <div class="grid md:grid-cols-2 gap-6">
+                @foreach($articles as $article)
+                <div class="bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-light)] hover:shadow-[var(--shadow-medium)] transition-shadow overflow-hidden">
+                    <!-- Изображение-превью с ссылкой -->
+                    @if(isset($article['preview_image']))
+                    <a href="{{ route('gallery', $article['preview_image']) }}">
+                        <img src="{{ asset('data/' . $article['preview_image']) }}" 
+                             alt="{{ $article['name'] ?? 'Изображение статьи' }}"
+                             class="w-full h-48 object-cover hover:opacity-90 transition-opacity">
+                    </a>
+                    @endif
+                    
+                    <div class="p-6">
+                        <!-- Дата -->
+                        @if(isset($article['date']))
+                        <div class="text-sm text-[var(--primary-pink)] font-medium mb-2">
+                            📅 {{ $article['date'] }}
+                        </div>
+                        @endif
+                        
+                        <!-- Заголовок -->
+                        <h3 class="text-xl font-bold mb-3 text-[var(--text-dark)]">
+                            {{ $article['name'] ?? 'Без названия' }}
+                        </h3>
+                        
+                        <!-- Краткое описание -->
+                        @if(isset($article['shortDesc']))
+                        <p class="text-[var(--text-light)] mb-4">
+                            {{ $article['shortDesc'] }}
+                        </p>
+                        @endif
+                        
+                        <!-- Полное описание -->
+                        @if(isset($article['desc']))
+                        <div class="mb-4">
+                            <p class="text-[var(--text-light)] text-sm line-clamp-3">
+                                {{ Str::limit($article['desc'], 150) }}
+                            </p>
+                        </div>
+                        @endif
+                        
+                        <!-- Ссылка на полное изображение -->
+                        @if(isset($article['full_image']))
+                        <div class="mt-4 pt-4 border-t border-[var(--border-color)]">
+                            <a href="{{ route('gallery', $article['full_image']) }}" 
+                            class="text-[var(--primary-pink)] hover:text-[var(--primary-pink-dark)] font-medium inline-flex items-center gap-2">
+                                <span>Посмотреть полное изображение</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @endif
     </div>
 </div>
 @endsection
