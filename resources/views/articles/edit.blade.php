@@ -137,13 +137,13 @@
         
         <!-- Форма удаления -->
         <div class="mt-8 pt-8 border-t border-[var(--border-color)]">
-            <form action="{{ route('articles.destroy', $article->slug) }}" method="POST" 
-                  onsubmit="return confirm('Вы уверены что хотите удалить эту статью?')">
+            <form action="{{ route('comments.destroy', $comment) }}" method="POST" 
+                onsubmit="return confirm('Удалить комментарий?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" 
-                        class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-[var(--shadow-light)]">
-                    Удалить статью
+                        class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors">
+                    🗑️ Удалить комментарий
                 </button>
             </form>
         </div>

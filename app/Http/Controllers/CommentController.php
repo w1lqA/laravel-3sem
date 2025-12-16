@@ -5,12 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Comment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    // УБИРАЕМ конструктор! Middleware настраиваем в роутах
-    
     public function index()
     {
         $comments = Comment::with(['article', 'user'])
@@ -37,16 +34,17 @@ class CommentController extends Controller
             'content.min' => 'Комментарий должен содержать минимум 5 символов'
         ]);
         
+        // ВРЕМЕННО: user_id = null (так как нет аутентификации)
         $comment = Comment::create([
             'article_id' => $validated['article_id'],
-            'user_id' => Auth::id(),
+            'user_id' => null, // Временно null
             'content' => $validated['content'],
-            'is_approved' => false // По умолчанию на модерации
+            'is_approved' => true // Временно сразу одобряем
         ]);
         
         return redirect()
             ->route('articles.show', $comment->article->slug)
-            ->with('success', 'Комментарий отправлен на модерацию!');
+            ->with('success', 'Комментарий успешно добавлен!');
     }
 
     public function show(Comment $comment)
@@ -56,21 +54,12 @@ class CommentController extends Controller
 
     public function edit(Comment $comment)
     {
-        // Проверяем что пользователь может редактировать
-        if (Auth::id() !== $comment->user_id) {
-            abort(403, 'У вас нет прав на редактирование этого комментария');
-        }
-        
+        // ВРЕМЕННО: разрешаем всем редактировать
         return view('comments.edit', compact('comment'));
     }
 
     public function update(Request $request, Comment $comment)
     {
-        // Проверяем права
-        if (Auth::id() !== $comment->user_id) {
-            abort(403, 'У вас нет прав на редактирование этого комментария');
-        }
-        
         $validated = $request->validate([
             'content' => 'required|string|min:5|max:1000'
         ]);
@@ -82,16 +71,11 @@ class CommentController extends Controller
         
         return redirect()
             ->route('articles.show', $comment->article->slug)
-            ->with('success', 'Комментарий обновлен и отправлен на модерацию!');
+            ->with('success', 'Комментарий обновлен!');
     }
 
     public function destroy(Comment $comment)
     {
-        // Проверяем права
-        if (Auth::id() !== $comment->user_id) {
-            abort(403, 'У вас нет прав на удаление этого комментария');
-        }
-        
         $articleSlug = $comment->article->slug;
         $comment->delete();
         

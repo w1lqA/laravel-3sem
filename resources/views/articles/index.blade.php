@@ -98,7 +98,7 @@
     @endif
 </div>
 
-@auth
+<!-- Кнопки управления -->
 <div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
     <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьями:</h3>
     <div class="flex gap-4">
@@ -108,7 +108,6 @@
         </a>
     </div>
 </div>
-@endauth
 
 @endsection
 

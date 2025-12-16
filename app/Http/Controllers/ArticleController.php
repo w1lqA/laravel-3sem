@@ -9,8 +9,6 @@ use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
-    // УБИРАЕМ конструктор! Middleware будем настраивать в роутах
-    
     public function index()
     {
         $filter = request('filter', 'all');

@@ -113,7 +113,7 @@
         </a>
     </div>
 </div>
-@auth
+<!-- Кнопки управления статьей -->
 <div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
     <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
     <div class="flex gap-4">
@@ -132,7 +132,6 @@
         </form>
     </div>
 </div>
-@endauth
 
 <!-- Комментарии -->
 <div class="mt-8 bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-medium)] p-8">
@@ -185,40 +184,37 @@
     @endif
     
     <!-- Форма добавления комментария -->
-    @auth
-        <div class="border-t-2 border-[var(--border-color)] pt-8">
-            <h3 class="text-xl font-bold mb-4 text-[var(--text-dark)]">Добавить комментарий</h3>
+    <div class="border-t-2 border-[var(--border-color)] pt-8">
+        <h3 class="text-xl font-bold mb-4 text-[var(--text-dark)]">Добавить комментарий</h3>
+        
+        <form action="{{ route('comments.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="article_id" value="{{ $article->id }}">
             
-            <form action="{{ route('comments.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="article_id" value="{{ $article->id }}">
-                
-                <div class="mb-4">
-                    <textarea name="content" 
-                              rows="4"
-                              class="w-full border-2 border-[var(--border-color)] px-4 py-3 focus:border-[var(--primary-pink)] focus:outline-none focus:shadow-[var(--shadow-light)] transition-all"
-                              placeholder="Ваш комментарий..."
-                              required></textarea>
-                    @error('content')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <button type="submit" 
-                        class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
-                    Отправить комментарий
-                </button>
-            </form>
-        </div>
-    @else
-        <div class="text-center py-6 border-2 border-[var(--border-color)] rounded bg-gray-50">
+            <div class="mb-4">
+                <textarea name="content" 
+                        rows="4"
+                        class="w-full border-2 border-[var(--border-color)] px-4 py-3 focus:border-[var(--primary-pink)] focus:outline-none focus:shadow-[var(--shadow-light)] transition-all"
+                        placeholder="Ваш комментарий..."
+                        required></textarea>
+                @error('content')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            
+            <button type="submit" 
+                    class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
+                Отправить комментарий
+            </button>
+        </form>
+    </div>
+        <!-- <div class="text-center py-6 border-2 border-[var(--border-color)] rounded bg-gray-50">
             <p class="text-[var(--text-dark)] mb-3">Чтобы оставить комментарий, необходимо авторизоваться</p>
             <a href="{{ route('auth.signin') }}" 
                class="px-6 py-2 bg-[var(--primary-pink)] text-white font-medium hover:bg-[var(--primary-pink-dark)] transition-colors">
                 Войти / Зарегистрироваться
             </a>
-        </div>
-    @endauth
+        </div> -->
 </div>
 
 @endsection
