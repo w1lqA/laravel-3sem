@@ -115,14 +115,20 @@
         </a>
     </div>
 </div>
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', $article)): ?>
 <!-- Кнопки управления статьей -->
 <div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
     <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
     <div class="flex gap-4">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', $article)): ?>
         <a href="<?php echo e(route('articles.edit', $article->slug)); ?>" 
            class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
             ✏️ Редактировать
         </a>
+        <?php endif; ?>
+        
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('delete', $article)): ?>
         <form action="<?php echo e(route('articles.destroy', $article->slug)); ?>" method="POST" 
               onsubmit="return confirm('Вы уверены?')">
             <?php echo csrf_field(); ?>
@@ -132,9 +138,10 @@
                 🗑️ Удалить
             </button>
         </form>
+        <?php endif; ?>
     </div>
 </div>
-
+<?php endif; ?>
 
 </div>
 <!-- Подключение комментариев -->

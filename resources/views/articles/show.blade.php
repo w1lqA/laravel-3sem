@@ -113,14 +113,20 @@
         </a>
     </div>
 </div>
+
+@can('update', $article)
 <!-- Кнопки управления статьей -->
 <div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
     <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
     <div class="flex gap-4">
+        @can('update', $article)
         <a href="{{ route('articles.edit', $article->slug) }}" 
            class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
             ✏️ Редактировать
         </a>
+        @endcan
+        
+        @can('delete', $article)
         <form action="{{ route('articles.destroy', $article->slug) }}" method="POST" 
               onsubmit="return confirm('Вы уверены?')">
             @csrf
@@ -130,9 +136,10 @@
                 🗑️ Удалить
             </button>
         </form>
+        @endcan
     </div>
 </div>
-
+@endcan
 
 </div>
 <!-- Подключение комментариев -->

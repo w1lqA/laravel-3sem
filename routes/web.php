@@ -58,13 +58,13 @@ Route::get('/articles/{article:slug}', [ArticleController::class, 'show'])->name
 
 // ========== КОММЕНТАРИИ ==========
 // Публичные маршруты комментариев
-Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
 Route::get('/comments/create', [CommentController::class, 'create'])->name('comments.create');
 Route::get('/comments/{comment}', [CommentController::class, 'show'])->name('comments.show');
 
 // ЗАЩИЩЕННЫЕ маршруты комментариев
 Route::middleware('auth')->group(function () {
     // Создание комментария
+    Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     
     // Редактирование/удаление своих комментариев
