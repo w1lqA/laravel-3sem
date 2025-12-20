@@ -66,12 +66,12 @@
                         <?php if(request()->is('articles/create')): ?> text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] <?php endif; ?>">
                             Создать статью
                         </a>
-                        
-                        <!-- Страница модерации комментариев (создадим позже) -->
+
+                        <!-- Страница модерации комментариев -->
                         <a href="<?php echo e(route('comments.index')); ?>" 
                         class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
                         <?php if(request()->is('comments*')): ?> text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] <?php endif; ?>">
-                            Модерация
+                            Модерация (<?php echo e(\App\Models\Comment::where('is_approved', false)->count()); ?>)
                         </a>
                         <?php endif; ?>
                     <?php endif; ?>

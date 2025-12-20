@@ -14,11 +14,22 @@ class CommentController extends Controller
     
     public function index()
     {
-        $comments = Comment::with(['article', 'user'])
-            ->latest()
-            ->paginate(20);
+        // Проверяем, что только модератор может видеть страницу модерации
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Доступ запрещен. Только модераторы могут просматривать страницу модерации.');
+        }
         
-        return view('comments.index', compact('comments'));
+        $filter = request('filter', 'pending');
+        
+        $query = Comment::with(['article', 'user']);
+        
+        if ($filter === 'pending') {
+            $query->where('is_approved', false);
+        }
+        
+        $comments = $query->latest()->paginate(20);
+        
+        return view('comments.index', compact('comments', 'filter'));
     }
 
     public function create()
@@ -41,11 +52,13 @@ class CommentController extends Controller
             'is_approved' => Auth::user()->isModerator()
         ]);
         
+        $message = Auth::user()->isModerator() 
+            ? 'Комментарий успешно добавлен!' 
+            : 'Комментарий отправлен на модерацию. Он появится после проверки модератором.';
+        
         return redirect()
             ->route('articles.show', $comment->article->slug)
-            ->with('success', Auth::user()->isModerator() 
-                ? 'Комментарий успешно добавлен!' 
-                : 'Комментарий отправлен на модерацию!');
+            ->with('success', $message);
     }
 
     public function show(Comment $comment)
@@ -100,7 +113,7 @@ class CommentController extends Controller
     public function approve(Comment $comment)
     {
         if (!Auth::user()->can('approve', $comment)) {
-            abort(403, 'Доступ запрещен');
+            return back()->with('error', 'Доступ запрещен');
         }
         
         $comment->update(['is_approved' => true]);
@@ -111,7 +124,7 @@ class CommentController extends Controller
     public function reject(Comment $comment)
     {
         if (!Auth::user()->can('reject', $comment)) {
-            abort(403, 'Доступ запрещен');
+            return back()->with('error', 'Доступ запрещен');
         }
         
         $comment->delete();

@@ -91,10 +91,15 @@ class ArticleController extends Controller
 
     public function show(Article $article)
     {
-        // Увеличиваем счетчик просмотров только для опубликованных статей
+        // Увеличиваем счетчик просмотров
         if ($article->is_published) {
             $article->increment('views_count');
         }
+        
+        // Загружаем только одобренные комментарии
+        $article->load(['comments' => function ($query) {
+            $query->where('is_approved', true)->latest();
+        }]);
         
         return view('articles.show', compact('article'));
     }

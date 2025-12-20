@@ -3,6 +3,20 @@
 <?php $__env->startSection('title', $article->title); ?>
 
 <?php $__env->startSection('content'); ?>
+<?php if(session('success')): ?>
+    <div class="max-w-4xl mx-auto mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded">
+        ✅ <?php echo e(session('success')); ?>
+
+    </div>
+<?php endif; ?>
+
+<?php if(session('error')): ?>
+    <div class="max-w-4xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+        ❌ <?php echo e(session('error')); ?>
+
+    </div>
+<?php endif; ?>
+
 <div class="max-w-4xl mx-auto">
     <div class="mb-6">
         <nav class="flex items-center gap-2 text-sm">
@@ -116,31 +130,28 @@
     </div>
 </div>
 
-<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', $article)): ?>
-<!-- Кнопки управления статьей -->
-<div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
-    <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
-    <div class="flex gap-4">
-        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', $article)): ?>
-        <a href="<?php echo e(route('articles.edit', $article->slug)); ?>" 
-           class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
-            ✏️ Редактировать
-        </a>
-        <?php endif; ?>
-        
-        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('delete', $article)): ?>
-        <form action="<?php echo e(route('articles.destroy', $article->slug)); ?>" method="POST" 
-              onsubmit="return confirm('Вы уверены?')">
-            <?php echo csrf_field(); ?>
-            <?php echo method_field('DELETE'); ?>
-            <button type="submit" 
-                    class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-[var(--shadow-light)]">
-                🗑️ Удалить
-            </button>
-        </form>
-        <?php endif; ?>
+<?php if(auth()->guard()->check()): ?>
+    <?php if(auth()->user()->isModerator()): ?>
+    <!-- Кнопки управления статьей - ТОЛЬКО ДЛЯ МОДЕРАТОРОВ -->
+    <div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
+        <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
+        <div class="flex gap-4">
+            <a href="<?php echo e(route('articles.edit', $article->slug)); ?>" 
+               class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
+                ✏️ Редактировать
+            </a>
+            <form action="<?php echo e(route('articles.destroy', $article->slug)); ?>" method="POST" 
+                  onsubmit="return confirm('Вы уверены?')">
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('DELETE'); ?>
+                <button type="submit" 
+                        class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-[var(--shadow-light)]">
+                    🗑️ Удалить
+                </button>
+            </form>
+        </div>
     </div>
-</div>
+    <?php endif; ?>
 <?php endif; ?>
 
 </div>

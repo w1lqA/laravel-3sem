@@ -31,7 +31,7 @@ Route::get('/gallery/{imageName}', [MainController::class, 'gallery'])->name('ga
 Route::controller(AuthController::class)->group(function () {
     Route::get('/signin', 'create')->name('auth.signin');
     Route::post('/signin', 'registration')->name('auth.register');
-    Route::get('/login', 'showLoginForm')->name('login'); // <-- ИЗМЕНИТЬ name
+    Route::get('/login', 'showLoginForm')->name('login');
     Route::post('/login', 'login')->name('auth.login');
     Route::post('/logout', 'logout')->name('auth.logout');
 });
@@ -40,10 +40,9 @@ Route::controller(AuthController::class)->group(function () {
 // Публичные маршруты
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
 
-// ЗАЩИЩЕННЫЕ маршруты для статей - должны быть ПЕРЕД маршрутом с {slug}!
+// ЗАЩИЩЕННЫЕ маршруты для статей - только для модераторов (ДОЛЖНЫ БЫТЬ ПЕРЕД show!)
 Route::middleware(['auth', 'moderator'])->group(function () {
-    // Создание статьи
-    Route::get('/test-articles-create', [ArticleController::class, 'create']);
+    // Создание статьи - ЭТО ВАЖНО! ДОЛЖНО БЫТЬ ПЕРЕД articles/{slug}!
     Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
     Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
     
@@ -62,17 +61,22 @@ Route::get('/comments/create', [CommentController::class, 'create'])->name('comm
 Route::get('/comments/{comment}', [CommentController::class, 'show'])->name('comments.show');
 
 // ЗАЩИЩЕННЫЕ маршруты комментариев
-Route::middleware('auth')->group(function () {
-    // Создание комментария
-    Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
+Route::middleware('auth')->group(function () {    
+    // Создание комментария (доступно всем авторизованным)
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     
     // Редактирование/удаление своих комментариев
     Route::get('/comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+});
+
+// Модерация комментариев - ТОЛЬКО для модераторов
+Route::middleware(['auth', 'moderator'])->group(function () {
+    // Просмотр списка комментариев для модерации
+    Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
     
-    // Модерация (позже добавить проверку на роль модератора)
+    // Одобрение/отклонение комментариев
     Route::post('/comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
     Route::post('/comments/{comment}/reject', [CommentController::class, 'reject'])->name('comments.reject');
 });

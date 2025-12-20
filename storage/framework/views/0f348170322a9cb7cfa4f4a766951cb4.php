@@ -101,16 +101,17 @@
     <?php endif; ?>
 </div>
 
-<!-- Кнопки управления -->
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create', $article)): ?>
 <div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
     <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьями:</h3>
     <div class="flex gap-4">
         <a href="<?php echo e(route('articles.create')); ?>" 
-           class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
+            class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
             📝 Создать новую статью
         </a>
     </div>
 </div>
+<?php endif; ?>
 
 <?php $__env->stopSection(); ?>
 

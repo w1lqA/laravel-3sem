@@ -5,10 +5,31 @@
 @section('content')
 <div class="max-w-6xl mx-auto">
     <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-2 text-gray-800">Все комментарии</h1>
+        <h1 class="text-3xl font-bold mb-2 text-gray-800">Модерация комментариев</h1>
         <p class="text-gray-600">
-            Управление комментариями. Показано {{ $comments->total() }} комментариев.
+            Комментарии, ожидающие проверки: {{ $comments->total() }}
         </p>
+        @if($comments->isEmpty())
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded">
+                ✅ Все комментарии проверены!
+            </div>
+        @endif
+    </div>
+
+    <div class="mb-6 flex gap-4">
+        <a href="{{ route('comments.index') }}" 
+        class="px-4 py-2 bg-pink-600 text-white font-medium rounded hover:bg-pink-700
+                {{ request()->has('filter') && request('filter') == 'pending' ? 'bg-pink-700' : '' }}">
+            ⏳ На модерации
+        </a>
+        
+        @can('viewAny', \App\Models\Comment::class)
+        <a href="{{ route('comments.index') }}?filter=all" 
+        class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300
+                {{ request('filter') == 'all' ? 'bg-gray-300' : '' }}">
+            📋 Все комментарии
+        </a>
+        @endcan
     </div>
     
     @if($comments->isEmpty())

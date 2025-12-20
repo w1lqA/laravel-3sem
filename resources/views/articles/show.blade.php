@@ -3,6 +3,18 @@
 @section('title', $article->title)
 
 @section('content')
+@if(session('success'))
+    <div class="max-w-4xl mx-auto mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded">
+        ✅ {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="max-w-4xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+        ❌ {{ session('error') }}
+    </div>
+@endif
+
 <div class="max-w-4xl mx-auto">
     <div class="mb-6">
         <nav class="flex items-center gap-2 text-sm">
@@ -114,32 +126,29 @@
     </div>
 </div>
 
-@can('update', $article)
-<!-- Кнопки управления статьей -->
-<div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
-    <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
-    <div class="flex gap-4">
-        @can('update', $article)
-        <a href="{{ route('articles.edit', $article->slug) }}" 
-           class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
-            ✏️ Редактировать
-        </a>
-        @endcan
-        
-        @can('delete', $article)
-        <form action="{{ route('articles.destroy', $article->slug) }}" method="POST" 
-              onsubmit="return confirm('Вы уверены?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" 
-                    class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-[var(--shadow-light)]">
-                🗑️ Удалить
-            </button>
-        </form>
-        @endcan
+@auth
+    @if(auth()->user()->isModerator())
+    <!-- Кнопки управления статьей - ТОЛЬКО ДЛЯ МОДЕРАТОРОВ -->
+    <div class="mt-8 bg-white border-2 border-[var(--border-color)] p-6">
+        <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
+        <div class="flex gap-4">
+            <a href="{{ route('articles.edit', $article->slug) }}" 
+               class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
+                ✏️ Редактировать
+            </a>
+            <form action="{{ route('articles.destroy', $article->slug) }}" method="POST" 
+                  onsubmit="return confirm('Вы уверены?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" 
+                        class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-[var(--shadow-light)]">
+                    🗑️ Удалить
+                </button>
+            </form>
+        </div>
     </div>
-</div>
-@endcan
+    @endif
+@endauth
 
 </div>
 <!-- Подключение комментариев -->
