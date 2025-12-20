@@ -25,10 +25,9 @@
             </div>
         @endif
         
-        <form action="{{ route('auth.register') }}" method="POST" id="registrationForm">
+        <form action="{{ route('auth.register') }}" method="POST">
             @csrf
             
-            <!-- Поле: Имя -->
             <div class="mb-6">
                 <label for="name" class="block text-[var(--text-dark)] font-medium mb-2">
                     Имя <span class="text-red-500">*</span>
@@ -45,7 +44,6 @@
                 @enderror
             </div>
             
-            <!-- Поле: Email -->
             <div class="mb-6">
                 <label for="email" class="block text-[var(--text-dark)] font-medium mb-2">
                     Email <span class="text-red-500">*</span>
@@ -62,8 +60,7 @@
                 @enderror
             </div>
             
-            <!-- Поле: Пароль -->
-            <div class="mb-8">
+            <div class="mb-6">
                 <label for="password" class="block text-[var(--text-dark)] font-medium mb-2">
                     Пароль <span class="text-red-500">*</span>
                 </label>
@@ -77,8 +74,19 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
+
+            <div class="mb-8">
+                <label for="password_confirmation" class="block text-[var(--text-dark)] font-medium mb-2">
+                    Подтверждение пароля <span class="text-red-500">*</span>
+                </label>
+                <input type="password" 
+                       id="password_confirmation"
+                       name="password_confirmation" 
+                       class="w-full border-2 border-[var(--border-color)] px-4 py-3 focus:border-[var(--primary-pink)] focus:outline-none focus:shadow-[var(--shadow-light)] transition-all"
+                       placeholder="Повторите пароль"
+                       required>
+            </div>
             
-            <!-- Кнопка отправки -->
             <div class="mb-6">
                 <button type="submit" 
                         class="w-full px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
@@ -86,73 +94,17 @@
                 </button>
             </div>
             
-            <!-- Ссылка на главную -->
-            <div class="text-center">
+            <div class="text-center space-y-2">
+                <a href="{{ route('auth.login') }}" 
+                   class="block text-[var(--primary-pink)] hover:text-[var(--primary-pink-dark)] font-medium">
+                    Уже есть аккаунт? Войдите
+                </a>
                 <a href="{{ route('home') }}" 
-                   class="text-[var(--primary-pink)] hover:text-[var(--primary-pink-dark)] font-medium">
+                   class="block text-gray-600 hover:text-gray-800 font-medium">
                     ← Вернуться на главную
                 </a>
             </div>
         </form>
-        
-        <!-- Блок для отображения JSON ответа -->
-        <div id="jsonResponse" class="mt-8 hidden">
-            <h3 class="text-lg font-bold mb-3 text-[var(--text-dark)]">Ответ сервера (JSON):</h3>
-            <pre class="bg-gray-50 border border-gray-200 p-4 rounded text-sm overflow-auto max-h-64"></pre>
-        </div>
     </div>
-
 </div>
-
-<!-- JavaScript для обработки формы AJAX -->
-<script>
-document.getElementById('registrationForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const formData = new FormData(form);
-    
-    // Показываем загрузку
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Отправка...';
-    submitBtn.disabled = true;
-    
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Показываем JSON ответ
-        const jsonResponse = document.getElementById('jsonResponse');
-        const pre = jsonResponse.querySelector('pre');
-        pre.textContent = JSON.stringify(data, null, 2);
-        jsonResponse.classList.remove('hidden');
-        
-        // Сбрасываем форму если успешно
-        if (!data.errors) {
-            form.reset();
-        }
-        
-        // Показываем сообщение
-        if (data.message) {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Произошла ошибка при отправке формы');
-    })
-    .finally(() => {
-        // Восстанавливаем кнопку
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    });
-});
-</script>
 @endsection

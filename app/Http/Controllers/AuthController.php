@@ -2,84 +2,156 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    /**
-     * Показываем форму регистрации
-     */
+    // ========== ВЕБ МЕТОДЫ ==========
     public function create()
     {
         return view('auth.signin');
     }
-    
-    /**
-     * Обрабатываем регистрацию
-     */
+
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
     public function registration(Request $request)
     {
-        // Правила валидации
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:2|max:50',
-            'email' => 'required|email|max:100',
-            'password' => 'required|string|min:6|max:50'
-        ];
+            'email' => 'required|email|max:100|unique:users,email',
+            'password' => 'required|string|min:6|max:50|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('auth.signin')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // redirect на форму авторизации (по заданию ЛР6)
+        return redirect()->route('auth.login')
+            ->with('success', 'Регистрация прошла успешно! Теперь вы можете войти.');
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
         
-        // Сообщения об ошибках
-        $messages = [
-            'name.required' => 'Поле "Имя" обязательно для заполнения.',
-            'name.min' => 'Имя должно содержать минимум 2 символа.',
-            'name.max' => 'Имя должно содержать максимум 50 символов.',
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
             
-            'email.required' => 'Поле "Email" обязательно для заполнения.',
-            'email.email' => 'Введите корректный email адрес.',
-            'email.max' => 'Email должен содержать максимум 100 символов.',
+            // Создаем токен Sanctum (для API, веб использует сессию)
+            $user = Auth::user();
+            $user->createToken('web-session');
             
-            'password.required' => 'Поле "Пароль" обязательно для заполнения.',
-            'password.min' => 'Пароль должен содержать минимум 6 символов.',
-            'password.max' => 'Пароль должен содержать максимум 50 символов.'
-        ];
+            // redirect на главную форму в обход посредника auth
+            return redirect()->route('home')
+                ->with('success', 'Вы успешно вошли!');
+        }
         
-        // Валидация
-        $validator = Validator::make($request->all(), $rules, $messages);
+        return back()->withErrors(['email' => 'Неверный email или пароль.']);
+    }
+
+    public function logout(Request $request)
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            
+            // УДАЛЯЕМ ТОКЕН Sanctum
+            $user->tokens()->delete();
+        }
+        
+        // Аннулирование сессии и обновление токена csrf
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect()->route('home');
+    }
+    
+    // ========== API МЕТОДЫ ==========
+    public function apiRegister(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|min:2|max:50',
+            'email' => 'required|email|max:100|unique:users,email',
+            'password' => 'required|string|min:6|max:50|confirmed',
+        ]);
         
         if ($validator->fails()) {
-            // Возвращаем ошибки валидации в JSON
             return response()->json([
-                'success' => false,
-                'message' => 'Ошибка валидации',
                 'errors' => $validator->errors()
             ], 422);
         }
         
-        // Если валидация прошла успешно
-        // В реальном приложении здесь была бы сохранение в БД
-        $validatedData = $validator->validated();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
         
-        // Симуляция создания пользователя (без сохранения в БД)
-        $userData = [
-            'id' => rand(1000, 9999), // временный ID
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password_hash' => '***скрыто***', // В реальности: Hash::make($validatedData['password'])
-            'created_at' => now()->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString()
-        ];
+        // Создаем токен для API
+        $token = $user->createToken('api-auth')->plainTextToken;
         
-        // Возвращаем успешный JSON ответ
         return response()->json([
-            'success' => true,
-            'message' => 'Регистрация прошла успешно! (Демо-режим)',
-            'user' => $userData,
-            'validation_passed' => true,
-            'csrf_token' => csrf_token(),
-            'received_data' => [
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'password_length' => strlen($validatedData['password'])
-            ]
-        ], 200);
+            'message' => 'Регистрация успешна',
+            'user' => $user,
+            'token' => $token
+        ], 201);
+    }
+    
+    public function apiLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+        
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $token = $user->createToken('api-auth')->plainTextToken;
+            
+            return response()->json([
+                'message' => 'Авторизация успешна',
+                'user' => $user,
+                'token' => $token
+            ]);
+        }
+        
+        return response()->json([
+            'message' => 'Неверные учетные данные'
+        ], 401);
+    }
+    
+    public function apiLogout(Request $request)
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            $user->tokens()->delete();
+            
+            return response()->json([
+                'message' => 'Выход выполнен'
+            ]);
+        }
+        
+        return response()->json([
+            'message' => 'Пользователь не авторизован'
+        ], 401);
     }
 }

@@ -4,8 +4,8 @@
 
 @section('content')
 <div class="max-w-2xl mx-auto">
-    <div class="bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-medium)] p-8 mb-8">
-        <h1 class="text-3xl font-bold mb-6 text-[var(--text-dark)]">Добавить комментарий</h1>
+    <div class="bg-white border-2 border-gray-200 shadow-lg p-8 mb-8">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">Добавить комментарий</h1>
         
         @if($errors->any())
             <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700">
@@ -22,12 +22,12 @@
             
             <!-- Выбор статьи -->
             <div class="mb-6">
-                <label for="article_id" class="block text-[var(--text-dark)] font-medium mb-2">
+                <label for="article_id" class="block text-gray-700 font-medium mb-2">
                     Статья <span class="text-red-500">*</span>
                 </label>
                 <select id="article_id" 
                         name="article_id" 
-                        class="w-full border-2 border-[var(--border-color)] px-4 py-3 focus:border-[var(--primary-pink)] focus:outline-none focus:shadow-[var(--shadow-light)] transition-all"
+                        class="w-full border-2 border-gray-300 px-4 py-3 focus:border-pink-500 focus:outline-none focus:shadow-sm transition-all"
                         required>
                     <option value="">Выберите статью...</option>
                     @foreach($articles as $article)
@@ -40,27 +40,27 @@
             
             <!-- Комментарий -->
             <div class="mb-8">
-                <label for="content" class="block text-[var(--text-dark)] font-medium mb-2">
+                <label for="content" class="block text-gray-700 font-medium mb-2">
                     Комментарий <span class="text-red-500">*</span>
                 </label>
                 <textarea 
                     id="content"
                     name="content" 
                     rows="6"
-                    class="w-full border-2 border-[var(--border-color)] px-4 py-3 focus:border-[var(--primary-pink)] focus:outline-none focus:shadow-[var(--shadow-light)] transition-all"
+                    class="w-full border-2 border-gray-300 px-4 py-3 focus:border-pink-500 focus:outline-none focus:shadow-sm transition-all"
                     placeholder="Ваш комментарий..."
                     required>{{ old('content') }}</textarea>
-                <p class="text-sm text-[var(--text-light)] mt-2">Минимум 5 символов, максимум 1000</p>
+                <p class="text-sm text-gray-500 mt-2">Минимум 5 символов, максимум 1000</p>
             </div>
             
             <!-- Кнопки -->
             <div class="flex gap-4">
                 <button type="submit" 
-                        class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
+                        class="px-6 py-3 bg-pink-600 text-white font-bold hover:bg-pink-700 transition-colors shadow-md">
                     Отправить комментарий
                 </button>
                 <a href="{{ route('comments.index') }}" 
-                   class="px-6 py-3 border-2 border-[var(--primary-pink)] text-[var(--primary-pink)] font-medium hover:bg-[#fff5f9] transition-colors">
+                   class="px-6 py-3 border-2 border-pink-600 text-pink-600 font-medium hover:bg-pink-50 transition-colors">
                     Отмена
                 </a>
             </div>

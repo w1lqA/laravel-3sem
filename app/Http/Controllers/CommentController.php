@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    // Автоматически применится политика через AuthServiceProvider
+    // или можно явно указать: $this->authorize('action', $comment);
+    
     public function index()
     {
         $comments = Comment::with(['article', 'user'])
@@ -28,23 +32,20 @@ class CommentController extends Controller
         $validated = $request->validate([
             'article_id' => 'required|exists:articles,id',
             'content' => 'required|string|min:5|max:1000'
-        ], [
-            'article_id.required' => 'Выберите статью',
-            'content.required' => 'Комментарий не может быть пустым',
-            'content.min' => 'Комментарий должен содержать минимум 5 символов'
         ]);
         
-        // ВРЕМЕННО: user_id = null (так как нет аутентификации)
         $comment = Comment::create([
             'article_id' => $validated['article_id'],
-            'user_id' => null, // Временно null
+            'user_id' => Auth::id(),
             'content' => $validated['content'],
-            'is_approved' => true // Временно сразу одобряем
+            'is_approved' => Auth::user()->isModerator()
         ]);
         
         return redirect()
             ->route('articles.show', $comment->article->slug)
-            ->with('success', 'Комментарий успешно добавлен!');
+            ->with('success', Auth::user()->isModerator() 
+                ? 'Комментарий успешно добавлен!' 
+                : 'Комментарий отправлен на модерацию!');
     }
 
     public function show(Comment $comment)
@@ -54,19 +55,27 @@ class CommentController extends Controller
 
     public function edit(Comment $comment)
     {
-        // ВРЕМЕННО: разрешаем всем редактировать
+        // Проверка через политику CommentPolicy
+        if (!Auth::user()->can('update', $comment)) {
+            abort(403, 'Доступ запрещен');
+        }
+        
         return view('comments.edit', compact('comment'));
     }
 
     public function update(Request $request, Comment $comment)
     {
+        if (!Auth::user()->can('update', $comment)) {
+            abort(403, 'Доступ запрещен');
+        }
+        
         $validated = $request->validate([
             'content' => 'required|string|min:5|max:1000'
         ]);
         
         $comment->update([
             'content' => $validated['content'],
-            'is_approved' => false // При редактировании снова на модерацию
+            'is_approved' => Auth::user()->isModerator()
         ]);
         
         return redirect()
@@ -76,6 +85,10 @@ class CommentController extends Controller
 
     public function destroy(Comment $comment)
     {
+        if (!Auth::user()->can('delete', $comment)) {
+            abort(403, 'Доступ запрещен');
+        }
+        
         $articleSlug = $comment->article->slug;
         $comment->delete();
         
@@ -84,9 +97,12 @@ class CommentController extends Controller
             ->with('success', 'Комментарий удален!');
     }
     
-    // Дополнительные методы для модерации
     public function approve(Comment $comment)
     {
+        if (!Auth::user()->can('approve', $comment)) {
+            abort(403, 'Доступ запрещен');
+        }
+        
         $comment->update(['is_approved' => true]);
         
         return back()->with('success', 'Комментарий одобрен!');
@@ -94,6 +110,10 @@ class CommentController extends Controller
     
     public function reject(Comment $comment)
     {
+        if (!Auth::user()->can('reject', $comment)) {
+            abort(403, 'Доступ запрещен');
+        }
+        
         $comment->delete();
         
         return back()->with('success', 'Комментарий отклонен и удален!');

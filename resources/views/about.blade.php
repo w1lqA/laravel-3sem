@@ -10,33 +10,8 @@
         </h1>
         
         <div class="space-y-6">
-            <div class="flex items-start gap-4">
-                <div class="text-[var(--primary-pink)] text-xl mt-1 font-bold">•</div>
-                <div>
-                    <h3 class="text-xl font-bold mb-2 text-[var(--primary-pink-dark)]">Цель создания</h3>
-                    <p class="text-[var(--text-light)]">Этот сайт разработан в рамках выполнения лабораторных работ по курсу "Серверная веб-разработка". Основная цель — освоить фреймворк Laravel на практике.</p>
-                </div>
-            </div>
-            
-            <div class="flex items-start gap-4">
-                <div class="text-[var(--primary-pink)] text-xl mt-1 font-bold">•</div>
-                <div>
-                    <h3 class="text-xl font-bold mb-2 text-[var(--primary-pink-dark)]">Используемые технологии</h3>
-                    <ul class="list-none space-y-2 text-[var(--text-light)]">
-                        <li class="flex items-center gap-2"><span class="w-2 h-2 bg-[var(--primary-pink)]"></span> Laravel 12 — современный PHP-фреймворк</li>
-                        <li class="flex items-center gap-2"><span class="w-2 h-2 bg-[var(--primary-pink)]"></span> Tailwind CSS v4 — утилитарный CSS-фреймворк</li>
-                        <li class="flex items-center gap-2"><span class="w-2 h-2 bg-[var(--primary-pink)]"></span> MySQL — система управления базами данных</li>
-                        <li class="flex items-center gap-2"><span class="w-2 h-2 bg-[var(--primary-pink)]"></span> Docker — контейнеризация приложения</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="flex items-start gap-4">
-                <div class="text-[var(--primary-pink)] text-xl mt-1 font-bold">•</div>
-                <div>
-                    <h3 class="text-xl font-bold mb-2 text-[var(--primary-pink-dark)]">Планы по развитию</h3>
-                    <p class="text-[var(--text-light)]">В рамках следующих лабораторных работ на сайте появятся: система аутентификации, CRUD для статей, комментарии, роли пользователей, рассылки и API.</p>
-                </div>
+            <div>
+                <p class="text-[var(--text-light)]">Этот сайт разработан в рамках выполнения лабораторных работ по курсу "Серверная веб-разработка". Основная цель — освоить фреймворк Laravel на практике.</p>
             </div>
         </div>
     </div>

@@ -11,8 +11,10 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
+        host: '0.0.0.0',  // Важно для Docker
+        port: 5173,
+        hmr: {
+            host: 'localhost',  // Для Windows
         },
-    },
+    }
 });

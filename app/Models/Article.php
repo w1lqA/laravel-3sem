@@ -43,6 +43,11 @@ class Article extends Model
         return $query->orderBy('created_at', 'desc');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Связь с комментариями
     public function comments(): HasMany
     {

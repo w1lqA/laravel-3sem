@@ -5,19 +5,19 @@
 @section('content')
 <div class="max-w-6xl mx-auto">
     <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-2 text-[var(--text-dark)]">Все комментарии</h1>
-        <p class="text-[var(--text-light)]">
+        <h1 class="text-3xl font-bold mb-2 text-gray-800">Все комментарии</h1>
+        <p class="text-gray-600">
             Управление комментариями. Показано {{ $comments->total() }} комментариев.
         </p>
     </div>
     
     @if($comments->isEmpty())
-        <div class="bg-white border-2 border-[var(--border-color)] p-8 text-center">
-            <p class="text-[var(--text-light)]">Комментарии не найдены</p>
+        <div class="bg-white border-2 border-gray-200 p-8 text-center">
+            <p class="text-gray-600">Комментарии не найдены</p>
         </div>
     @else
         <!-- Таблица комментариев -->
-        <div class="bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-medium)] overflow-hidden mb-6">
+        <div class="bg-white border-2 border-gray-200 shadow-lg overflow-hidden mb-6">
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
@@ -37,7 +37,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <a href="{{ route('articles.show', $comment->article->slug) }}" 
-                               class="text-[var(--primary-pink)] hover:text-[var(--primary-pink-dark)] text-sm font-medium">
+                               class="text-pink-600 hover:text-pink-800 text-sm font-medium">
                                 {{ Str::limit($comment->article->title, 30) }}
                             </a>
                         </td>
@@ -62,19 +62,25 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex gap-2">
                                 <a href="{{ route('comments.show', $comment) }}" 
-                                   class="text-blue-600 hover:text-blue-900">Просмотр</a>
-                                @if(!$comment->is_approved)
-                                <form action="{{ route('comments.approve', $comment) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit" class="text-green-600 hover:text-green-900">Одобрить</button>
-                                </form>
-                                @endif
+                                class="text-blue-600 hover:text-blue-900">Просмотр</a>
+                                
+                                @can('approve', $comment)
+                                    @if(!$comment->is_approved)
+                                    <form action="{{ route('comments.approve', $comment) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-green-600 hover:text-green-900">Одобрить</button>
+                                    </form>
+                                    @endif
+                                @endcan
+                                
+                                @can('delete', $comment)
                                 <form action="{{ route('comments.destroy', $comment) }}" method="POST" 
-                                      onsubmit="return confirm('Удалить комментарий?')" class="inline">
+                                    onsubmit="return confirm('Удалить комментарий?')" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900">Удалить</button>
                                 </form>
+                                @endcan
                             </div>
                         </td>
                     </tr>
@@ -90,7 +96,7 @@
     <!-- Ссылка на создание -->
     <div class="mt-8">
         <a href="{{ route('comments.create') }}" 
-           class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)] inline-flex items-center gap-2">
+           class="px-6 py-3 bg-pink-600 text-white font-bold hover:bg-pink-700 transition-colors shadow-lg inline-flex items-center gap-2">
             ✍️ Добавить комментарий
         </a>
     </div>

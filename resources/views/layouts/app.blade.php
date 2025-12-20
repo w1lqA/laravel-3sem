@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Laravel Blog')</title>
     
-    <!-- Используем предустановленный Tailwind v4 через Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
-        /* Дополнительные кастомные стили в бело-розовой палитре */
         :root {
             --primary-pink: #ff69b4;
             --primary-pink-dark: #db4d94;
@@ -27,14 +25,12 @@
             font-family: system-ui, -apple-system, sans-serif;
         }
         
-        /* Убираем все закругления глобально */
         * {
             border-radius: 0 !important;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Навигация с острыми углами -->
     <header class="bg-white border-b-2 border-[var(--border-color)] shadow-[var(--shadow-light)]">
         <nav class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
@@ -42,7 +38,7 @@
                     Laravel<span class="text-[var(--text-dark)]">Blog</span>
                 </a>
                 
-                <div class="flex gap-6">
+                <div class="flex gap-6 items-center">
                     <a href="/" 
                        class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
                        @if(request()->is('/')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
@@ -58,34 +54,62 @@
                        @if(request()->is('contacts')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
                         Контакты
                     </a>
-                    <a href="/signin" 
-                        class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
-                        @if(request()->is('signin')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
-                        Регистрация
-                    </a>
                     <a href="{{ route('articles.index') }}" 
                     class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
                     @if(request()->is('articles*')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
                         Статьи
                     </a>
                     @auth
-                    <a href="{{ route('comments.index') }}" 
-                    class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
-                    @if(request()->is('comments*')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
-                        Комментарии
-                    </a>
+                        @if(auth()->user()->isModerator())
+                        <a href="{{ route('articles.create') }}" 
+                        class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
+                        @if(request()->is('articles/create')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
+                            Создать статью
+                        </a>
+                        
+                        <!-- Страница модерации комментариев (создадим позже) -->
+                        <a href="{{ route('comments.index') }}" 
+                        class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative
+                        @if(request()->is('comments*')) text-[var(--primary-pink)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[var(--primary-pink)] @endif">
+                            Модерация
+                        </a>
+                        @endif
+                    @endauth
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    @auth
+                        <span class="text-[var(--text-dark)] font-medium">
+                            {{ Auth::user()->name }}
+                        </span>
+                        <form action="{{ route('auth.logout') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="px-4 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-[var(--primary-pink)] transition-colors font-medium">
+                                Выйти
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('auth.login') }}" 
+                           class="px-4 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-[var(--primary-pink)] transition-colors font-medium
+                           @if(request()->is('login')) bg-[#fff5f9] text-[var(--primary-pink)] @endif">
+                            Войти
+                        </a>
+                        <a href="{{ route('auth.signin') }}" 
+                           class="px-4 py-2 text-sm bg-[var(--primary-pink)] text-white hover:bg-[var(--primary-pink-dark)] transition-colors font-medium
+                           @if(request()->is('signin')) bg-[var(--primary-pink-dark)] @endif">
+                            Регистрация
+                        </a>
                     @endauth
                 </div>
             </div>
         </nav>
     </header>
 
-    <!-- Основной контент -->
     <main class="flex-1 container mx-auto px-4 py-8">
         @yield('content')
     </main>
 
-    <!-- Футер -->
     <footer class="bg-white border-t-2 border-[var(--border-color)] py-6 mt-12">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">

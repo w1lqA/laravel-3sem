@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
+
     public function index()
     {
         $filter = request('filter', 'all');
@@ -28,12 +29,18 @@ class ArticleController extends Controller
 
     public function create()
     {
-        // Показываем форму только авторизованным пользователям
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Доступ запрещен. Только модераторы могут создавать статьи.');
+        }
+        
         return view('articles.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Доступ запрещен. Только модераторы могут создавать статьи.');
+        }
         $validated = $request->validate([
             'title' => 'required|string|min:5|max:200',
             'content' => 'required|string|min:20',
@@ -73,7 +80,8 @@ class ArticleController extends Controller
             'short_desc' => $validated['short_desc'] ?? null,
             'preview_image' => $previewImagePath,
             'full_image' => $fullImagePath,
-            'is_published' => $validated['is_published'] ?? true
+            'is_published' => $validated['is_published'] ?? true,
+            'user_id' => auth()->id(),
         ]);
         
         return redirect()
@@ -93,11 +101,18 @@ class ArticleController extends Controller
 
     public function edit(Article $article)
     {
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Доступ запрещен. Только модераторы могут редактировать статьи.');
+        }
+        
         return view('articles.edit', compact('article'));
     }
 
     public function update(Request $request, Article $article)
     {
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Доступ запрещен. Только модераторы могут редактировать статьи.');
+        }
         $validated = $request->validate([
             'title' => 'required|string|min:5|max:200',
             'content' => 'required|string|min:20',
@@ -142,6 +157,9 @@ class ArticleController extends Controller
 
     public function destroy(Article $article)
     {
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Доступ запрещен. Только модераторы могут редактировать статьи.');
+        }
         // Удаляем изображения
         if ($article->preview_image && Storage::disk('public')->exists($article->preview_image)) {
             Storage::disk('public')->delete($article->preview_image);

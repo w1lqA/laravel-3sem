@@ -6,15 +6,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CommentController;
 
-// Главная страница
+// ========== ГЛАВНЫЕ МАРШРУТЫ ==========
 Route::get('/', [MainController::class, 'index'])->name('home');
 
-// О нас
-Route::get('/about', function () {
-    return view('about');
+Route::get('/about', function () { 
+    return view('about'); 
 })->name('about');
 
-// Контакты
 Route::get('/contacts', function () {
     $contacts = [
         'email' => 'contact@laravelblog.test',
@@ -24,41 +22,80 @@ Route::get('/contacts', function () {
         'рабочие часы' => 'Пн–Пт: 10:00–19:00, Сб: 11:00–16:00',
         'ответственный' => 'Иванов Иван (студент группы ПИ-123)'
     ];
-    
     return view('contacts', ['contacts' => $contacts]);
 })->name('contacts');
 
-// Галерея
 Route::get('/gallery/{imageName}', [MainController::class, 'gallery'])->name('gallery');
 
-// ЛР №3: Регистрация
-Route::get('/signin', [AuthController::class, 'create'])->name('auth.signin');
-Route::post('/signin', [AuthController::class, 'registration'])->name('auth.register');
-
-// ========== ЛР №5: CRUD для статей ==========
-// ВРЕМЕННО УБИРАЕМ MIDDLEWARE!
-Route::controller(ArticleController::class)->group(function () {
-    Route::get('/articles', 'index')->name('articles.index');
-    Route::get('/articles/create', 'create')->name('articles.create'); // <-- Доступ без авторизации
-    Route::post('/articles', 'store')->name('articles.store');
-    Route::get('/articles/{article:slug}', 'show')->name('articles.show');
-    Route::get('/articles/{article:slug}/edit', 'edit')->name('articles.edit');
-    Route::put('/articles/{article:slug}', 'update')->name('articles.update');
-    Route::delete('/articles/{article:slug}', 'destroy')->name('articles.destroy');
+// ========== АУТЕНТИФИКАЦИЯ ==========
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/signin', 'create')->name('auth.signin');
+    Route::post('/signin', 'registration')->name('auth.register');
+    Route::get('/login', 'showLoginForm')->name('login'); // <-- ИЗМЕНИТЬ name
+    Route::post('/login', 'login')->name('auth.login');
+    Route::post('/logout', 'logout')->name('auth.logout');
 });
 
-// ========== ДЗ №3: CRUD для комментариев ==========
-// ВРЕМЕННО УБИРАЕМ MIDDLEWARE!
-Route::controller(CommentController::class)->group(function () {
-    Route::get('/comments', 'index')->name('comments.index');
-    Route::get('/comments/create', 'create')->name('comments.create'); // <-- Доступ без авторизации
-    Route::post('/comments', 'store')->name('comments.store');
-    Route::get('/comments/{comment}', 'show')->name('comments.show');
-    Route::get('/comments/{comment}/edit', 'edit')->name('comments.edit');
-    Route::put('/comments/{comment}', 'update')->name('comments.update');
-    Route::delete('/comments/{comment}', 'destroy')->name('comments.destroy');
+// ========== СТАТЬИ ==========
+// Публичные маршруты
+Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+
+// ЗАЩИЩЕННЫЕ маршруты для статей - должны быть ПЕРЕД маршрутом с {slug}!
+Route::middleware(['auth', 'moderator'])->group(function () {
+    // Создание статьи
+    Route::get('/test-articles-create', [ArticleController::class, 'create']);
+    Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
+    Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
     
-    // Модерация
-    Route::post('/comments/{comment}/approve', 'approve')->name('comments.approve');
-    Route::post('/comments/{comment}/reject', 'reject')->name('comments.reject');
+    // Редактирование/удаление статьи
+    Route::get('/articles/{article:slug}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
+    Route::put('/articles/{article:slug}', [ArticleController::class, 'update'])->name('articles.update');
+    Route::delete('/articles/{article:slug}', [ArticleController::class, 'destroy'])->name('articles.destroy');
+});
+
+// Показ статьи - ПОСЛЕ create!
+Route::get('/articles/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
+
+// ========== КОММЕНТАРИИ ==========
+// Публичные маршруты комментариев
+Route::get('/comments', [CommentController::class, 'index'])->name('comments.index');
+Route::get('/comments/create', [CommentController::class, 'create'])->name('comments.create');
+Route::get('/comments/{comment}', [CommentController::class, 'show'])->name('comments.show');
+
+// ЗАЩИЩЕННЫЕ маршруты комментариев
+Route::middleware('auth')->group(function () {
+    // Создание комментария
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    
+    // Редактирование/удаление своих комментариев
+    Route::get('/comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    
+    // Модерация (позже добавить проверку на роль модератора)
+    Route::post('/comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
+    Route::post('/comments/{comment}/reject', [CommentController::class, 'reject'])->name('comments.reject');
+});
+
+// ========== ТЕСТОВЫЕ МАРШРУТЫ ==========
+Route::get('/check-session', function() {
+    dd([
+        'auth_check' => auth()->check(),
+        'user' => auth()->user(),
+        'session_id' => session()->getId(),
+        'session_all' => session()->all(),
+        'cookies' => request()->cookies->all()
+    ]);
+});
+
+Route::get('/check-auth', function() {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user' => auth()->user() ? [
+            'id' => auth()->user()->id,
+            'name' => auth()->user()->name,
+            'email' => auth()->user()->email,
+        ] : null,
+        'session_id' => session()->getId(),
+    ]);
 });
