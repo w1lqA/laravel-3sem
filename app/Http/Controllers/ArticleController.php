@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Mail\NewArticleNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendNewArticleNotification;
 
 class ArticleController extends Controller
 {
@@ -87,26 +88,11 @@ class ArticleController extends Controller
             'user_id' => auth()->id(),
         ]);
         
-        $moderators = User::whereHas('roles', function ($query) {
-            $query->where('slug', 'moderator');
-        })->get();
-
-        if ($moderators->isEmpty()) {
-            \Log::warning('Нет модераторов для отправки уведомлений');
-        } else {
-            foreach ($moderators as $moderator) {
-                try {
-                    Mail::to($moderator->email)->send(new NewArticleNotification($article));
-                    \Log::info('Уведомление отправлено модератору: ' . $moderator->email);
-                } catch (\Exception $e) {
-                    \Log::error('Ошибка отправки письма: ' . $e->getMessage());
-                }
-            }
-        }
-
+        SendNewArticleNotification::dispatch($article);
+        
         return redirect()
             ->route('articles.show', $article->slug)
-            ->with('success', 'Статья успешно создана! Уведомления отправлены модераторам.');
+            ->with('success', 'Статья успешно создана! Уведомления поставлены в очередь для отправки.');
     }
 
     public function show(Article $article)

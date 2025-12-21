@@ -83,19 +83,6 @@
                     <p class="text-sm text-[var(--text-light)] mt-2">JPG, PNG, до 5MB</p>
                 </div>
             </div>
-            
-            <div class="mb-8">
-                <label class="flex items-center">
-                    <input type="checkbox" 
-                           name="is_published" 
-                           value="1"
-                           <?php echo e(old('is_published', true) ? 'checked' : ''); ?>
-
-                           class="mr-2 h-5 w-5 text-[var(--primary-pink)]">
-                    <span class="text-[var(--text-dark)]">Опубликовать статью сразу</span>
-                </label>
-            </div>
-            
             <div class="flex gap-4">
                 <button type="submit" 
                         class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
