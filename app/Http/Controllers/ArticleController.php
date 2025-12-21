@@ -10,6 +10,7 @@ use App\Mail\NewArticleNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Jobs\SendNewArticleNotification;
+use Illuminate\Support\Facades\Cache; 
 
 class ArticleController extends Controller
 {
@@ -18,15 +19,21 @@ class ArticleController extends Controller
     {
         $filter = request('filter', 'all');
         
-        $articles = Article::query();
+        // Создаем уникальный ключ для кэша с учетом фильтра
+        $cacheKey = 'articles.' . $filter . '.' . request()->get('page', 1);
         
-        if ($filter === 'popular') {
-            $articles->popular();
-        } else {
-            $articles->latest();
-        }
-        
-        $articles = $articles->paginate(6);
+        // Пытаемся получить данные из кэша, если нет - выполняем запрос и кэшируем
+        $articles = Cache::remember($cacheKey, now()->addHour(), function () use ($filter) {
+            $query = Article::query();
+            
+            if ($filter === 'popular') {
+                $query->popular();
+            } else {
+                $query->latest();
+            }
+            
+            return $query->paginate(6);
+        });
         
         return view('articles.index', compact('articles', 'filter'));
     }
@@ -90,6 +97,9 @@ class ArticleController extends Controller
         
         SendNewArticleNotification::dispatch($article);
         
+        Cache::forget('articles.all.1');
+        Cache::forget('articles.popular.1');
+
         return redirect()
             ->route('articles.show', $article->slug)
             ->with('success', 'Статья успешно создана! Уведомления поставлены в очередь для отправки.');
@@ -97,17 +107,19 @@ class ArticleController extends Controller
 
     public function show(Article $article)
     {
-        // Увеличиваем счетчик просмотров
         if ($article->is_published) {
             $article->increment('views_count');
         }
         
-        // Загружаем только одобренные комментарии
-        $article->load(['comments' => function ($query) {
-            $query->where('is_approved', true)->latest();
-        }]);
+        $cacheKey = 'article.' . $article->id . '.with_comments';
+            
+        $cachedArticle = Cache::rememberForever($cacheKey, function () use ($article) {
+            return $article->load(['comments' => function ($query) {
+                $query->where('is_approved', true)->latest();
+            }]);
+        });
         
-        return view('articles.show', compact('article'));
+        return view('articles.show', ['article' => $cachedArticle]);
     }
 
     public function edit(Article $article)
@@ -161,9 +173,11 @@ class ArticleController extends Controller
         
         $article->update($validated);
         
+        Cache::flush();
+        
         return redirect()
             ->route('articles.show', $article->slug)
-            ->with('success', 'Статья успешно обновлена!');
+            ->with('success', 'Статья успешно обновлена! Кэш очищен.');
     }
 
     public function destroy(Article $article)
@@ -180,6 +194,8 @@ class ArticleController extends Controller
         }
         
         $article->delete();
+
+        Cache::flush();
         
         return redirect()
             ->route('articles.index')
