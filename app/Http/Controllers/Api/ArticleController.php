@@ -33,7 +33,7 @@ class ArticleController extends Controller
             'user_id' => auth()->id(),
         ]);
         
-        return response()->json($article, 201);
+        return response()->json($article, 201); 
     }
     
     public function show(Article $article)

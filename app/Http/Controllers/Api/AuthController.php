@@ -67,7 +67,7 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             $user = Auth::user();
-            $user->tokens()->delete();
+            $user->currentAccessToken()->delete();
             
             return response()->json([
                 'message' => 'Выход выполнен'

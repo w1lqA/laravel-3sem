@@ -17,7 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'moderator' => \App\Http\Middleware\CheckModerator::class,
+            'not.moderator' => \App\Http\Middleware\CheckNotModerator::class, 
             'track.article.view' => \App\Http\Middleware\TrackArticleView::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+            'sanctum/csrf-cookie',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
