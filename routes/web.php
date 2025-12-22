@@ -83,6 +83,34 @@ Route::middleware(['auth', 'moderator'])->group(function () {
     Route::post('/comments/{comment}/reject', [CommentController::class, 'reject'])->name('comments.reject');
 });
 
+
+// ========== УВЕДОМЛЕНИЯ (ЛР12) ==========
+Route::middleware('auth')->group(function () {
+    // Просмотр уведомления + переход к статье + пометка как прочитанное
+    Route::get('/notifications/{notification}/read', function ($notificationId) {
+        $notification = auth()->user()->notifications()->findOrFail($notificationId);
+        
+        // Помечаем как прочитанное
+        $notification->markAsRead();
+        
+        // Перенаправляем на статью
+        return redirect()->route('articles.show', $notification->data['article_slug']);
+    })->name('notifications.read');
+    
+    // Страница со всеми уведомлениями
+    Route::get('/notifications', function () {
+        $notifications = auth()->user()->notifications()->paginate(20);
+        return view('notifications.index', compact('notifications'));
+    })->name('notifications.index');
+    
+    // Пометить все как прочитанные
+    Route::post('/notifications/mark-all-read', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back()->with('success', 'Все уведомления помечены как прочитанные');
+    })->name('notifications.mark-all-read');
+});
+
+
 // ========== ТЕСТОВЫЕ МАРШРУТЫ ==========
 Route::get('/check-session', function() {
     dd([

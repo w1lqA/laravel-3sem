@@ -90,6 +90,76 @@
                                 Выйти
                             </button>
                         </form>
+                        <?php if(!auth()->user()->isModerator()): ?>
+                        <div class="relative">
+                            <button id="notificationsDropdown" 
+                                    class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative">
+                                🔔 Уведомления 
+                                <?php
+                                    $unreadCount = auth()->user()->unreadNotifications()->count();
+                                ?>
+                                <?php if($unreadCount > 0): ?>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    <?php echo e($unreadCount); ?>
+
+                                </span>
+                                <?php endif; ?>
+                            </button>
+                            
+                            <div id="notificationsMenu" 
+                                class="hidden absolute right-0 mt-2 w-64 bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-medium)] z-50">
+                                <div class="p-3 border-b border-[var(--border-color)]">
+                                    <div class="font-bold text-[var(--text-dark)]">Уведомления</div>
+                                    <div class="text-xs text-[var(--text-light)]">Новые статьи</div>
+                                </div>
+                                
+                                <div class="max-h-64 overflow-y-auto">
+                                    <?php $__empty_1 = true; $__currentLoopData = auth()->user()->notifications->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <a href="<?php echo e(route('notifications.read', $notification)); ?>"
+                                    class="block p-3 border-b border-[var(--border-color)] hover:bg-[#fff5f9] transition-colors <?php echo e($notification->read_at ? 'opacity-75' : ''); ?>">
+                                        <div class="font-medium text-sm text-[var(--text-dark)]">
+                                            <?php echo e($notification->data['article_title'] ?? 'Новая статья'); ?>
+
+                                        </div>
+                                        <div class="text-xs text-[var(--text-light)] mt-1">
+                                            <?php echo e($notification->created_at->diffForHumans()); ?>
+
+                                            <?php if(!$notification->read_at): ?>
+                                            <span class="ml-2 inline-block h-2 w-2 bg-red-500 rounded-full"></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </a>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                    <div class="p-4 text-center text-[var(--text-light)] text-sm">
+                                        Нет уведомлений
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <?php if(auth()->user()->notifications->count() > 0): ?>
+                                <div class="p-3 border-t border-[var(--border-color)]">
+                                    <a href="<?php echo e(route('notifications.index')); ?>" 
+                                    class="block text-center text-sm text-[var(--primary-pink)] hover:text-[var(--primary-pink-dark)]">
+                                        Все уведомления
+                                    </a>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <script>
+                            document.getElementById('notificationsDropdown').addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                document.getElementById('notificationsMenu').classList.toggle('hidden');
+                            });
+                            
+                            document.addEventListener('click', function(e) {
+                                if (!e.target.closest('#notificationsDropdown') && !e.target.closest('#notificationsMenu')) {
+                                    document.getElementById('notificationsMenu').classList.add('hidden');
+                                }
+                            });
+                        </script>
+                        <?php endif; ?>
                     <?php else: ?>
                         <a href="<?php echo e(route('auth.login')); ?>" 
                            class="px-4 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-[var(--primary-pink)] transition-colors font-medium

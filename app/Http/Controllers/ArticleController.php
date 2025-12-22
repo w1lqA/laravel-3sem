@@ -11,6 +11,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Jobs\SendNewArticleNotification;
 use Illuminate\Support\Facades\Cache; 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewArticlePublished;
 
 class ArticleController extends Controller
 {
@@ -97,6 +99,16 @@ class ArticleController extends Controller
         
         SendNewArticleNotification::dispatch($article);
         
+        $readers = User::whereDoesntHave('roles', function ($query) {
+                $query->where('slug', 'moderator');
+            })
+            ->where('id', '!=', auth()->id())
+            ->get();
+
+        if ($readers->isNotEmpty()) {
+            Notification::send($readers, new NewArticlePublished($article));
+        }
+
         Cache::forget('articles.all.1');
         Cache::forget('articles.popular.1');
 

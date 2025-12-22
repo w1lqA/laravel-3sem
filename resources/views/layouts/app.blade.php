@@ -89,6 +89,73 @@
                                 Выйти
                             </button>
                         </form>
+                        @if(!auth()->user()->isModerator())
+                        <div class="relative">
+                            <button id="notificationsDropdown" 
+                                    class="px-3 py-2 font-medium text-[var(--text-dark)] hover:text-[var(--primary-pink)] hover:bg-[#fff5f9] transition-colors relative">
+                                🔔 Уведомления 
+                                @php
+                                    $unreadCount = auth()->user()->unreadNotifications()->count();
+                                @endphp
+                                @if($unreadCount > 0)
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ $unreadCount }}
+                                </span>
+                                @endif
+                            </button>
+                            
+                            <div id="notificationsMenu" 
+                                class="hidden absolute right-0 mt-2 w-64 bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-medium)] z-50">
+                                <div class="p-3 border-b border-[var(--border-color)]">
+                                    <div class="font-bold text-[var(--text-dark)]">Уведомления</div>
+                                    <div class="text-xs text-[var(--text-light)]">Новые статьи</div>
+                                </div>
+                                
+                                <div class="max-h-64 overflow-y-auto">
+                                    @forelse(auth()->user()->notifications->take(5) as $notification)
+                                    <a href="{{ route('notifications.read', $notification) }}"
+                                    class="block p-3 border-b border-[var(--border-color)] hover:bg-[#fff5f9] transition-colors {{ $notification->read_at ? 'opacity-75' : '' }}">
+                                        <div class="font-medium text-sm text-[var(--text-dark)]">
+                                            {{ $notification->data['article_title'] ?? 'Новая статья' }}
+                                        </div>
+                                        <div class="text-xs text-[var(--text-light)] mt-1">
+                                            {{ $notification->created_at->diffForHumans() }}
+                                            @if(!$notification->read_at)
+                                            <span class="ml-2 inline-block h-2 w-2 bg-red-500 rounded-full"></span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                    @empty
+                                    <div class="p-4 text-center text-[var(--text-light)] text-sm">
+                                        Нет уведомлений
+                                    </div>
+                                    @endforelse
+                                </div>
+                                
+                                @if(auth()->user()->notifications->count() > 0)
+                                <div class="p-3 border-t border-[var(--border-color)]">
+                                    <a href="{{ route('notifications.index') }}" 
+                                    class="block text-center text-sm text-[var(--primary-pink)] hover:text-[var(--primary-pink-dark)]">
+                                        Все уведомления
+                                    </a>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <script>
+                            document.getElementById('notificationsDropdown').addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                document.getElementById('notificationsMenu').classList.toggle('hidden');
+                            });
+                            
+                            document.addEventListener('click', function(e) {
+                                if (!e.target.closest('#notificationsDropdown') && !e.target.closest('#notificationsMenu')) {
+                                    document.getElementById('notificationsMenu').classList.add('hidden');
+                                }
+                            });
+                        </script>
+                        @endif
                     @else
                         <a href="{{ route('auth.login') }}" 
                            class="px-4 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-[var(--primary-pink)] transition-colors font-medium
