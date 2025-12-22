@@ -1,0 +1,5 @@
+# планировщик лр14
+./sail.bat php artisan schedule:work
+
+# воркер очереди лр10
+./sail.bat php artisan queue:work

@@ -53,7 +53,9 @@ Route::middleware(['auth', 'moderator'])->group(function () {
 });
 
 // Показ статьи - ПОСЛЕ create!
-Route::get('/articles/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
+Route::get('/articles/{article:slug}', [ArticleController::class, 'show'])
+    ->name('articles.show')
+    ->middleware('track.article.view');
 
 // ========== КОММЕНТАРИИ ==========
 // Публичные маршруты комментариев

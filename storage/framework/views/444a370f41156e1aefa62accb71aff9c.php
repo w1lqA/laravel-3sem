@@ -35,13 +35,14 @@
                     <h1 class="text-3xl font-bold mb-2 text-[var(--text-dark)]"><?php echo e($article->title); ?></h1>
                     
                     <div class="flex flex-wrap items-center gap-4 text-sm text-[var(--text-light)]">
-                        <div class="flex items-center gap-1">
-                            <span>📅</span>
-                            <span><?php echo e($article->created_at->format('d.m.Y H:i')); ?></span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <span>👁️</span>
-                            <span><?php echo e($article->views_count); ?> просмотров</span>
+                        <?php
+                            $todayViews = App\Models\ArticleView::where('article_id', $article->id)
+                                ->whereDate('created_at', today())
+                                ->count();
+                        ?>
+                        <div class="flex items-center gap-1"">
+                            <span>👁️ за сегодня:</span>
+                            <span><?php echo e($todayViews); ?></span>
                         </div>
                         <?php if(!$article->is_published): ?>
                         <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Черновик</span>
@@ -109,9 +110,14 @@
                         <span class="text-[var(--text-light)]">Дата обновления:</span>
                         <span class="font-medium"><?php echo e($article->updated_at->format('d.m.Y H:i:s')); ?></span>
                     </div>
+                    <?php
+                        $todayViews = App\Models\ArticleView::where('article_id', $article->id)
+                            ->whereDate('created_at', today())
+                            ->count();
+                    ?>
                     <div class="flex justify-between">
                         <span class="text-[var(--text-light)]">Просмотры:</span>
-                        <span class="font-medium"><?php echo e($article->views_count); ?></span>
+                        <span class="font-medium"><?php echo e($todayViews); ?></span>
                     </div>
                 </div>
             </div>

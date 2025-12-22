@@ -59,9 +59,14 @@
                                 {{ $article->title }}
                             </a>
                         </h3>
-                        <div class="flex items-center justify-between text-sm text-[var(--text-light)]">
-                            <span>📅 {{ $article->created_at->format('d.m.Y') }}</span>
-                            <span>👁️ {{ $article->views_count }} просмотров</span>
+                        @php
+                            $todayViews = App\Models\ArticleView::where('article_id', $article->id)
+                                ->whereDate('created_at', today())
+                                ->count();
+                        @endphp
+                        <div class="flex items-center gap-1"">
+                            <span>👁️ за сегодня:</span>
+                            <span>{{ $todayViews }}</span>
                         </div>
                     </div>
                     

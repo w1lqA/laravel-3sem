@@ -33,13 +33,14 @@
                     <h1 class="text-3xl font-bold mb-2 text-[var(--text-dark)]">{{ $article->title }}</h1>
                     
                     <div class="flex flex-wrap items-center gap-4 text-sm text-[var(--text-light)]">
-                        <div class="flex items-center gap-1">
-                            <span>📅</span>
-                            <span>{{ $article->created_at->format('d.m.Y H:i') }}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <span>👁️</span>
-                            <span>{{ $article->views_count }} просмотров</span>
+                        @php
+                            $todayViews = App\Models\ArticleView::where('article_id', $article->id)
+                                ->whereDate('created_at', today())
+                                ->count();
+                        @endphp
+                        <div class="flex items-center gap-1"">
+                            <span>👁️ за сегодня:</span>
+                            <span>{{ $todayViews }}</span>
                         </div>
                         @if(!$article->is_published)
                         <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Черновик</span>
@@ -105,9 +106,14 @@
                         <span class="text-[var(--text-light)]">Дата обновления:</span>
                         <span class="font-medium">{{ $article->updated_at->format('d.m.Y H:i:s') }}</span>
                     </div>
+                    @php
+                        $todayViews = App\Models\ArticleView::where('article_id', $article->id)
+                            ->whereDate('created_at', today())
+                            ->count();
+                    @endphp
                     <div class="flex justify-between">
                         <span class="text-[var(--text-light)]">Просмотры:</span>
-                        <span class="font-medium">{{ $article->views_count }}</span>
+                        <span class="font-medium">{{ $todayViews }}</span>
                     </div>
                 </div>
             </div>
