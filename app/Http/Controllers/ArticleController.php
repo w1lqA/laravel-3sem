@@ -13,6 +13,7 @@ use App\Jobs\SendNewArticleNotification;
 use Illuminate\Support\Facades\Cache; 
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewArticlePublished;
+use App\Events\ArticleCreated;
 
 class ArticleController extends Controller
 {
@@ -96,9 +97,11 @@ class ArticleController extends Controller
             'is_published' => $validated['is_published'] ?? true,
             'user_id' => auth()->id(),
         ]);
-        
+                
         SendNewArticleNotification::dispatch($article);
         
+        broadcast(new ArticleCreated($article))->toOthers();
+
         $readers = User::whereDoesntHave('roles', function ($query) {
                 $query->where('slug', 'moderator');
             })
@@ -186,9 +189,9 @@ class ArticleController extends Controller
         $article->update($validated);
         
         Cache::flush();
-        
+                
         return redirect()
-            ->route('articles.show', $article->slug)
+            ->route('articles.show', $article->fresh()->slug) 
             ->with('success', 'Статья успешно обновлена! Кэш очищен.');
     }
 

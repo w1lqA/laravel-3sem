@@ -181,6 +181,9 @@
         <?php echo $__env->yieldContent('content'); ?>
     </main>
 
+    <!-- vue -->
+    <div id="app"></div>
+
     <footer class="bg-white border-t-2 border-[var(--border-color)] py-6 mt-12">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">

@@ -37,11 +37,16 @@
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             @foreach($articles as $article)
             <div class="bg-white border-2 border-[var(--border-color)] shadow-[var(--shadow-light)] hover:shadow-[var(--shadow-medium)] transition-shadow overflow-hidden flex flex-col h-full">
-                @if($article->preview_image)
                 <div class="relative h-48 overflow-hidden">
-                    <img src="{{ asset('data/' . $article->preview_image) }}" 
-                         alt="{{ $article->title }}"
-                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                    @if($article->preview_image)
+                    <img src="{{ Storage::url($article->preview_image) }}" 
+                        alt="{{ $article->title }}"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                    @else
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-400">Нет изображения</span>
+                    </div>
+                    @endif
                     
                     @if(!$article->is_published)
                     <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
@@ -49,7 +54,6 @@
                     </div>
                     @endif
                 </div>
-                @endif
                 
                 <div class="p-5 flex-1 flex flex-col">
                     <div class="mb-3">

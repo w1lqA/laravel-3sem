@@ -66,9 +66,9 @@
         <?php if($article->full_image): ?>
         <div class="p-8 border-b-2 border-[var(--border-color)]">
             <div class="max-w-2xl mx-auto">
-                <img src="<?php echo e(asset('data/' . $article->full_image)); ?>" 
-                     alt="<?php echo e($article->title); ?>"
-                     class="w-full h-auto rounded shadow-lg">
+                <img src="<?php echo e(Storage::url($article->full_image)); ?>" 
+                    alt="<?php echo e($article->title); ?>"
+                    class="w-full h-auto rounded shadow-lg">
                 <p class="text-center text-sm text-[var(--text-light)] mt-2">Иллюстрация к статье</p>
             </div>
         </div>
@@ -143,7 +143,7 @@
         <h3 class="font-bold mb-4 text-[var(--text-dark)]">Управление статьей:</h3>
         <div class="flex gap-4">
             <a href="<?php echo e(route('articles.edit', $article->slug)); ?>" 
-               class="px-6 py-3 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-[var(--shadow-light)]">
+               class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink)] transition-colors shadow-[var(--shadow-light)]">
                 ✏️ Редактировать
             </a>
             <form action="<?php echo e(route('articles.destroy', $article->slug)); ?>" method="POST" 

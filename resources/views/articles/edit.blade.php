@@ -123,7 +123,7 @@
             </div>
             
             <!-- Кнопки -->
-            <div class="flex gap-4">
+            <div class="flex gap-4 ">
                 <button type="submit" 
                         class="px-6 py-3 bg-[var(--primary-pink)] text-white font-bold hover:bg-[var(--primary-pink-dark)] transition-colors shadow-[var(--shadow-light)]">
                     Обновить статью
@@ -137,13 +137,13 @@
         
         <!-- Форма удаления -->
         <div class="mt-8 pt-8 border-t border-[var(--border-color)]">
-            <form action="{{ route('comments.destroy', $comment) }}" method="POST" 
-                onsubmit="return confirm('Удалить комментарий?')">
+            <form action="{{ route('articles.destroy', $article) }}" method="POST" 
+                onsubmit="return confirm('Удалить статью?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" 
                         class="px-6 py-3 bg-red-600 text-white font-bold hover:bg-red-700 transition-colors">
-                    🗑️ Удалить комментарий
+                    🗑️ Удалить статью
                 </button>
             </form>
         </div>
